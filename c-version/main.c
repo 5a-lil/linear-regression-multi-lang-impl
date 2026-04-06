@@ -9,14 +9,14 @@
 #define I 0
 #define J 1
 #define M 24
-#define ITERS 1000
+#define ITERS 10000
 
-double **values = NULL;
+double (*values)[2] = NULL;
 
 size_t m = 0;
 double theta0 = 0;
 double theta1 = 0;
-double learn_rate = 0.01;
+double learn_rate = 0.1;
 
 //------------------------------------------------------------------------------------------------------------------------------------
 
@@ -28,19 +28,19 @@ double estimated_price(double x)
 void calc_new_thetas()
 {
     double sum_estimated_prices_theta0 = 0;
-    for (size_t i = 0; i < M; i++) {
+    for (size_t i = 0; i < m; i++) {
         sum_estimated_prices_theta0 += estimated_price(values[i][I]) - values[i][J];
     }
 
     double sum_estimated_prices_theta1 = 0;
-    for (size_t i = 0; i < M; i++) {
+    for (size_t i = 0; i < m; i++) {
         sum_estimated_prices_theta1 += (estimated_price(values[i][I]) - values[i][J]) * values[i][I];
     }
 
     //------------------------------------------------------------------------------------------------------------------------------------
 
-    double theta0_var = learn_rate * (sum_estimated_prices_theta0 / M);
-    double theta1_var = learn_rate * (sum_estimated_prices_theta1 / M);
+    double theta0_var = learn_rate * (sum_estimated_prices_theta0 / m);
+    double theta1_var = learn_rate * (sum_estimated_prices_theta1 / m);
     theta0 -= theta0_var;
     theta1 -= theta1_var;
 }
@@ -52,7 +52,7 @@ size_t strlen_without_spaces(const char *str)
     size_t i = 0;
     while (*str)
     {
-        if (*str != ' ' && *str != '\n')
+        if (*str != ' ' && *str != '\n' && *str != '\r')
             i++;
         str++;
     }
@@ -71,7 +71,7 @@ char *epur_line_from_space(const char *str)
     size_t i = 0;
     while (*str)
     {
-        if (*str != ' ' && *str != '\n')
+        if (*str != ' ' && *str != '\n' && *str != '\r')
             res[i++] = *str;
         str++;
     }
@@ -92,7 +92,10 @@ bool is_float(const char *str)
 
 int main(int argc, char **argv)
 {
-    //------------------------------------------------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
+
     {
         bool failed_parsing = false;
         if (argc != 2) {
@@ -148,7 +151,7 @@ int main(int argc, char **argv)
         //-------------------------------------------------------------------------------------------
 
         while ((read_bytes = getline(&line, &len, fd)) != -1) {
-            if (line[0] == '\n') continue;
+            if (line[0] == '\n' || (line[0] == '\r' && line[1] == '\n')) continue;
 
             char *str_first_value = NULL;
             char *str_second_value = NULL;
@@ -172,7 +175,6 @@ int main(int argc, char **argv)
                 }
 
                 num_second_value = strtod(str_second_value, NULL);
-                printf("%f - ", num_second_value);
             }//-----------------------------------------------------------------------------------------------------------
 
             {//-----------------------------------------------------------------------------------------------------------
@@ -196,12 +198,11 @@ int main(int argc, char **argv)
                 }
 
                 num_first_value = strtod(str_first_value, NULL);
-                printf("%f\n", num_first_value);
                 free(str_first_value);
             }//-----------------------------------------------------------------------------------------------------------
 
             m++;
-            double **new_values = malloc(m * sizeof(double *));
+            double (*new_values)[2] = malloc(m * sizeof(*values));
             if (!new_values) {
                 free(values);
                 failed_parsing = true;
@@ -209,25 +210,18 @@ int main(int argc, char **argv)
             }
 
             size_t i = 0;
-            printf("-------------\n");
             while (i < m - 1) 
             {
-                printf("{ %f, %f }\n", values[i][0], values[i][1]);   
-                new_values[i] = values[i];
+                new_values[i][0] = values[i][0];
+                new_values[i][1] = values[i][1];
                 i++;
             }
-            new_values[i] = (double[2]){ num_first_value, num_second_value };
-            printf("DAME{ %f, %f }\n", values[i][0], values[i][1]);
+            new_values[i][0] = num_first_value;
+            new_values[i][1] = num_second_value;
         
             void *temp_to_free = values;
             values = new_values;
             free(temp_to_free);
-        }
-
-        size_t i = -1;
-        while (++i < m)
-        {
-            printf("{ %f, %f }\n", values[i][0], values[i][1]);
         }
 
         //-------------------------------------------------------------------------------------------
@@ -243,17 +237,36 @@ int main(int argc, char **argv)
                 return 1;
             }
 
-        
     }
 
-    // for (size_t i = 0; i < M; i++)
-    // {
-    //     values[i][I] = (values[i][I] - 48235) / (240000 - 48235);
-    // }
+    //-------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
 
-    // for (int i1 = 0; i1 < ITERS; i1++)
-    // {
-    //     calc_new_thetas();
-    //     printf("theta0 = %f\ntheta1 = %f\n-------\n", theta0, theta1);
-    // }
+    {
+        double values_min_x = values[0][I];
+        for (size_t i = 0; i < m; i++) {
+            if (values[i][I] < values_min_x)
+                values_min_x = values[i][I];
+        }
+
+        double values_max_x = values[0][I];
+        for (size_t i = 0; i < m; i++) {
+            if (values[i][I] > values_max_x)
+                values_max_x = values[i][I];
+        }
+
+        for (size_t i = 0; i < m; i++) {
+            values[i][I] = (values[i][I] - values_min_x) / (values_max_x - values_min_x);
+        }
+
+        for (int i1 = 0; i1 < ITERS; i1++) {
+            calc_new_thetas();
+            printf("theta0 = %f\ntheta1 = %f\n-------\n", theta0, theta1);
+        }
+
+        printf("%f\n", estimated_price((176000 - values_min_x) / (values_max_x - values_min_x)));
+
+        free(values);
+    }
 }
