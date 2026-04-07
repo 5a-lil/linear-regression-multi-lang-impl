@@ -260,13 +260,27 @@ int main(int argc, char **argv)
             values[i][I] = (values[i][I] - values_min_x) / (values_max_x - values_min_x);
         }
 
-        for (int i1 = 0; i1 < ITERS; i1++) {
+        for (int i1 = 0; i1 < ITERS; i1++)
             calc_new_thetas();
-            printf("theta0 = %f\ntheta1 = %f\n-------\n", theta0, theta1);
+
+        FILE *output_fd = fopen(".thetas", "w");
+        if (output_fd == NULL) {
+            printf("Error: failed opening \"thetas\"\n");
+            return 1;
         }
 
-        printf("%f\n", estimated_price((176000 - values_min_x) / (values_max_x - values_min_x)));
+
+        // denormalizing theta1
+        theta1 = theta1 / (values_max_x - values_min_x);
+        theta0 = theta0 - theta1 * values_min_x;
+
+        fprintf(output_fd, "%f\n%f", theta0, theta1);
 
         free(values);
+        fclose(output_fd);
     }
+
+    //-------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
+    //-------------------------------------------------------------------------------------------
 }
