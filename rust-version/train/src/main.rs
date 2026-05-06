@@ -55,6 +55,7 @@ impl Data {
         let mut writer = BufWriter::new(file);
         writeln!(writer, "theta0: {}", self.theta0)?;
         writeln!(writer, "theta1: {}", self.theta1)?;
+        println!("theta0 and theta1 saved to \".thetas\" file");
         Ok(())
     }
 }
