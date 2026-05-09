@@ -529,6 +529,7 @@ name = "plot"
 version = "0.1.0"
 dependencies = [
  "csv",
+ "owo-colors",
  "plotters",
 ]
 

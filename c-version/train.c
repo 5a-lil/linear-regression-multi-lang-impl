@@ -9,7 +9,7 @@
 #define I 0
 #define J 1
 #define M 24
-#define ITERS 10000
+#define ITERS 1000
 
 double (*values)[2] = NULL;
 

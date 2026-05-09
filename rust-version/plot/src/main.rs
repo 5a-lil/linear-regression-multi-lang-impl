@@ -4,6 +4,7 @@ use std::io::BufRead;
 use std::error::Error;
 use std::fs::File;
 use std::io::{BufReader};
+use owo_colors::OwoColorize;
 
 fn read_thetas(file_path: &str) -> Result<(f64, f64), Box<dyn Error>> {
     let file = File::open(file_path)?;
@@ -36,9 +37,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let i_max = value_i.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b));
-    let (theta0, theta1) = read_thetas(".thetas")?;
 
-    let root = BitMapBackend::new("line.png", (800, 600)).into_drawing_area();
+    let (mut theta0, mut theta1) = (0.0, 0.0);
+    if let Ok(thetas) = read_thetas(".thetas") {
+        theta0 = thetas.0;
+        theta1 = thetas.1;
+    } else {
+        eprintln!("{}", "No \".thetas\" file found yet, need for model training".bright_white().bold());
+    };
+
+    let root = BitMapBackend::new("plot.png", (800, 600)).into_drawing_area();
     root.fill(&WHITE)?;
     
     let mut chart = ChartBuilder::on(&root)
@@ -56,6 +64,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let points = vec![(0.0, theta0), (i_max, theta1 * i_max + theta0)];
     chart.draw_series(LineSeries::new(points, &RED))?;
+
+    println!("{}", "Result plot saved in path \"plot.png\"".bright_white().bold());
 
     Ok(())
 }

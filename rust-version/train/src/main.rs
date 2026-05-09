@@ -65,15 +65,25 @@ impl Data {
         Ok(())
     }
 
-    fn calc_precision(&self) -> f64 {
-        let sum_sq: f64 = self.value_i.iter()
+    fn calc_precision(&self) {
+        let mae: f64 = self.value_i.iter()
+        .zip(self.value_j.iter())
+        .map(|(&x, &y)| {
+            (self.estimated_price(x) - y).abs()
+        })
+        .sum::<f64>() / self.m as f64;
+
+        let mse: f64 = self.value_i.iter()
         .zip(self.value_j.iter())
         .map(|(&x, &y)| {
             let error = self.estimated_price(x) - y;
             error * error
         })
-        .sum();
-        (sum_sq / self.m as f64).sqrt()
+        .sum::<f64>() / self.m as f64;
+
+        let rmse: f64 = mse.sqrt();
+
+        println!("{}", format!("MAE: {}\nMSE: {}\nRMSE: {}", mae, mse, rmse).bright_white().bold())
     }
 }
 
@@ -114,7 +124,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     data.theta0 = j_min + (j_max - j_min) * data.theta0 - data.theta1 * i_min;
     
     if env::var("PREC").is_ok() {
-        println!("{}", format!("Algorithm precision: {}", data.calc_precision()).bright_white().bold());
+        data.calc_precision();
     }
 
     data.save_thetas()

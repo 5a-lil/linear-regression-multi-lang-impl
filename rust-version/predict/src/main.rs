@@ -27,16 +27,23 @@ fn main() -> Result<(), Box<dyn Error>> {
     if let Ok(thetas) = read_thetas(".thetas") {
         theta0 = thetas.0;
         theta1 = thetas.1;
+    } else {
+        eprintln!("{}", "No \".thetas\" file found yet, need for model training".bright_white().bold());
     };
 
     let mut input = String::new();
     print!("{}", "Input mileage: ".blue().bold());
     stdout().flush()?;
-    stdin().read_line(&mut input)?;
-    let mileage: f64 = input.trim().parse()?;
+    if let Err(_) = stdin().read_line(&mut input) {
+        eprintln!("{}", "Error while reading input from stdin".bright_red().bold());
+    };
 
-    let price = theta0 + theta1 * mileage;
-    println!("{}", format!("km: {mileage} -> price: {price}").bright_white().bold());
+    if let Ok(mileage) = input.trim().parse::<f64>() {
+        let price = theta0 + theta1 * mileage;
+        println!("{}", format!("km: {mileage} -> price: {price}").bright_white().bold());
+    } else {
+        eprintln!("{}", "Error while parsing numeric supposed input".bright_red().bold());
+    };
 
     Ok(())
 }

@@ -73,8 +73,8 @@ Where α is the learning rate and m is the number of training examples.
 CSV file with header:
 ```
 km,price
-24000,3650
-30000,3200
+240000,3650
+139800,3800
 ...
 ```
 
@@ -82,9 +82,9 @@ km,price
 
 **Compile:**
 ```
-cd C
-gcc -o train train.c
-gcc -o predict predict.c
+cd c-version
+cc -o train train.c
+cc -o predict predict.c
 ```
 
 **Train:**
@@ -94,7 +94,7 @@ gcc -o predict predict.c
 
 **Predict:**
 ```
-./predict <mileage_value>
+./predict <mileage>
 ```
 
 **Note:** The training program normalizes data, trains for 1000 iterations (default), and saves parameters to `.thetas`.
@@ -103,7 +103,7 @@ gcc -o predict predict.c
 
 **Install dependencies:**
 ```
-cd python
+cd python-version
 pip install matplotlib
 ```
 
@@ -132,7 +132,7 @@ python3 plot.py
 
 **Build:**
 ```
-cd rust
+cd rust-version
 cargo build --release
 ```
 
@@ -220,26 +220,6 @@ The C implementation demonstrates low-level systems programming:
 - PNG output (`plot.png`)
 - Clean, publication-quality graphics
 - No external runtime required
-
-## 🧪 Example Workflow
-
-1. **Train the model:**
-   ```
-   # Any language version
-   python3 python/train.py
-   ```
-
-2. **Check precision:**
-   ```
-   python3 python/plot.py   # Shows metrics + plot
-   ```
-
-3. **Make a prediction:**
-   ```
-   cargo run --bin predict --release
-   # or
-   ./C/predict <mileage_value>
-   ```
 
 ## 📝 Notes
 
