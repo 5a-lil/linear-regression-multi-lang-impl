@@ -262,4 +262,4 @@ This project demonstrates:
 - Model persistence strategies
 - Visualization integration
 
-Have fun analyzing and using it 🔥
+# Have fun analyzing and using it 🔥
