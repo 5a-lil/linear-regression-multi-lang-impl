@@ -22,7 +22,12 @@ fn read_thetas(file_path: &str) -> Result<(f64, f64), Box<dyn Error>> {
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    let (theta0, theta1) = read_thetas(".thetas")?;
+    let (mut theta0, mut theta1) = (0.0, 0.0);
+
+    if let Ok(thetas) = read_thetas(".thetas") {
+        theta0 = thetas.0;
+        theta1 = thetas.1;
+    };
 
     let mut input = String::new();
     print!("{}", "Input mileage: ".blue().bold());
