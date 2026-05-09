@@ -36,7 +36,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     let i_max = value_i.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b));
-    let (theta0, theta1) = read_thetas(".thetas").unwrap();
+    let (theta0, theta1) = read_thetas(".thetas")?;
 
     let root = BitMapBackend::new("line.png", (800, 600)).into_drawing_area();
     root.fill(&WHITE)?;
