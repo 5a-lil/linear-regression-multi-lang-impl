@@ -2,6 +2,8 @@ use csv::Reader;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::Path;
+use std::env;
+use owo_colors::OwoColorize;
 
 const ITERS: i32 = 1000;
 const LEARN_RATE: f64 = 0.1;
@@ -14,6 +16,8 @@ struct Data {
     learn_rate: f64,
     value_i: Vec<f64>,
     value_j: Vec<f64>,
+    norm_value_i: Vec<f64>,
+    norm_value_j: Vec<f64>,
 }
 
 impl Data {
@@ -25,6 +29,8 @@ impl Data {
             learn_rate: LEARN_RATE,
             value_i: vec![],
             value_j: vec![],
+            norm_value_i: vec![],
+            norm_value_j: vec![],
         }
     }
 
@@ -35,12 +41,12 @@ impl Data {
     fn calc_new_thetas(&mut self) {
         let mut sum_estimated_price_theta0: f64 = 0.0;
         for i in 0..self.m {
-            sum_estimated_price_theta0 += self.estimated_price(self.value_i[i]) - self.value_j[i];
+            sum_estimated_price_theta0 += self.estimated_price(self.norm_value_i[i]) - self.norm_value_j[i];
         }
 
         let mut sum_estimated_price_theta1: f64 = 0.0;
         for i in 0..self.m {
-            sum_estimated_price_theta1 += (self.estimated_price(self.value_i[i]) - self.value_j[i]) * self.value_i[i];
+            sum_estimated_price_theta1 += (self.estimated_price(self.norm_value_i[i]) - self.norm_value_j[i]) * self.norm_value_i[i];
         }
 
         let theta0_var: f64 = self.learn_rate * (sum_estimated_price_theta0 / self.m as f64);
@@ -55,8 +61,19 @@ impl Data {
         let mut writer = BufWriter::new(file);
         writeln!(writer, "theta0: {}", self.theta0)?;
         writeln!(writer, "theta1: {}", self.theta1)?;
-        println!("theta0 and theta1 saved to \".thetas\" file");
+        println!("{}", "theta0 and theta1 saved to \".thetas\" file".bright_white().bold());
         Ok(())
+    }
+
+    fn calc_precision(&self) -> f64 {
+        let sum_sq: f64 = self.value_i.iter()
+        .zip(self.value_j.iter())
+        .map(|(&x, &y)| {
+            let error = self.estimated_price(x) - y;
+            error * error
+        })
+        .sum();
+        (sum_sq / self.m as f64).sqrt()
     }
 }
 
@@ -81,11 +98,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let j_min = data.value_j.iter().fold(f64::INFINITY, |a, &b| a.min(b));
     let j_max = data.value_j.iter().fold(f64::NEG_INFINITY, |a, &b| a.max(b));
 
-    data.value_i = data.value_i.iter()
+    data.norm_value_i = data.value_i.iter()
         .map(|&x| (x - i_min) / (i_max - i_min))
         .collect();
     
-    data.value_j = data.value_j.iter()
+    data.norm_value_j = data.value_j.iter()
         .map(|&y| (y - j_min) / (j_max - j_min))
         .collect();
 
@@ -96,5 +113,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     data.theta1 = (j_max - j_min) * data.theta1 / (i_max - i_min);
     data.theta0 = j_min + (j_max - j_min) * data.theta0 - data.theta1 * i_min;
     
+    if env::var("PREC").is_ok() {
+        println!("{}", format!("Algorithm precision: {}", data.calc_precision()).bright_white().bold());
+    }
+
     data.save_thetas()
 }
