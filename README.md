@@ -19,12 +19,11 @@ This project predicts numerical values using linear regression with gradient des
 | CSV parsing | Custom implementation | `csv` module | `csv` crate |
 | Gradient descent | ✅ From scratch | ✅ From scratch | ✅ From scratch |
 | Feature normalization | ✅ Manual | ✅ Manual | ✅ Manual |
-| Model persistence | Binary file | JSON | Text file |
+| Model persistence | ".thetas" file | "thetas.json" file | ".thetas" file |
 | Prediction CLI | ✅ | ✅ | ✅ |
 | Precision metrics (MAE, MSE, RMSE, R²) | ❌ | ✅ | ✅ |
 | Visualization | ❌ | ✅ (matplotlib) | ✅ (plotters) |
 | Data denormalization | ✅ | ✅ | ✅ |
-| Colored terminal output | ❌ | ❌ | ✅ |
 
 ## 📁 Project Structure
 
@@ -84,8 +83,8 @@ km,price
 **Compile:**
 ```
 cd C
-gcc -o train train.c -lm
-gcc -o predict predict.c -lm
+gcc -o train train.c
+gcc -o predict predict.c
 ```
 
 **Train:**
@@ -95,10 +94,10 @@ gcc -o predict predict.c -lm
 
 **Predict:**
 ```
-./predict 50000
+./predict <mileage_value>
 ```
 
-**Note:** The training program normalizes data, trains for 10,000 iterations (default), and saves parameters to `.thetas`.
+**Note:** The training program normalizes data, trains for 1000 iterations (default), and saves parameters to `.thetas`.
 
 ### Python Version
 
@@ -156,7 +155,7 @@ cargo run --release --bin plot
 - Training: 1000 iterations with 0.1 learning rate
 - Precision metrics (when `PREC=1` is set)
 - Colored terminal output
-- PNG plot with regression line
+- PNG plot with regression line `plot.png`
 - Parameters saved to `.thetas`
 
 ## 📊 Precision Metrics (Python & Rust)
@@ -207,7 +206,7 @@ The C implementation demonstrates low-level systems programming:
 | Parameter | C | Python | Rust |
 |-----------|-------|--------|------|
 | Learning rate | 0.1 | 0.1 | 0.1 |
-| Iterations | 10000 | 1000 | 1000 |
+| Iterations | 1000 | 1000 | 1000 |
 | Normalization | Min-Max | Min-Max | Min-Max |
 
 ## 📈 Visualization
@@ -218,7 +217,7 @@ The C implementation demonstrates low-level systems programming:
 - Automatic display with `plt.show()`
 
 ### Rust (`plotters`)
-- PNG output (`line.png`)
+- PNG output (`plot.png`)
 - Clean, publication-quality graphics
 - No external runtime required
 
@@ -239,7 +238,7 @@ The C implementation demonstrates low-level systems programming:
    ```
    cargo run --bin predict --release
    # or
-   ./C/predict 50000
+   ./C/predict <mileage_value>
    ```
 
 ## 📝 Notes
