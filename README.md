@@ -39,11 +39,11 @@ This project predicts numerical values using linear regression with gradient des
 │   └── plot.py          # Visualization + precision metrics (Python)
 ├── rust/
 │   ├── train/
-│   │   └── main.rs      # Training + precision (Rust)
+│   │   └── src/main.rs      # Training + precision (Rust)
 │   ├── predict/
-│   │   └── main.rs      # Prediction CLI (Rust)
+│   │   └── src/main.rs      # Prediction CLI (Rust)
 │   └── plot/
-│       └── main.rs      # Generates regression plot (Rust)
+│       └── src/main.rs      # Generates regression plot (Rust)
 ├── data.csv             # Dataset (mileage, price)
 └── README.md
 ```
@@ -262,7 +262,4 @@ This project demonstrates:
 - Model persistence strategies
 - Visualization integration
 
-## 📄 License
-
-MIT
-```
+Have fun analyzing and using it 🔥
