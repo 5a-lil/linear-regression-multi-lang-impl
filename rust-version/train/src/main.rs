@@ -83,7 +83,20 @@ impl Data {
 
         let rmse: f64 = mse.sqrt();
 
-        println!("{}", format!("MAE: {}\nMSE: {}\nRMSE: {}", mae, mse, rmse).bright_white().bold())
+        let average_price: f64 = self.value_j.iter().sum::<f64>() / self.m as f64;
+        let ss_tot: f64 = self.value_j.iter().map(|&x| {
+            let res = x - average_price;
+            res * res
+        }).sum();
+        let ss_res: f64 = self.value_i.iter()
+        .zip(self.value_j.iter())
+        .map(|(&x, &y)| {
+            let res = y - self.estimated_price(x);
+            res * res
+        }).sum();
+        let r2: f64 = 1.0 - (ss_res / ss_tot);
+
+        println!("{}", format!("MAE: {}\nMSE: {}\nRMSE: {}\nR2: {}", mae, mse, rmse, r2).bright_white().bold())
     }
 }
 
