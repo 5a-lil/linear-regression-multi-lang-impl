@@ -50,7 +50,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     root.fill(&WHITE)?;
     
     let mut chart = ChartBuilder::on(&root)
-        .caption("y = x²", ("Arial", 30))
+        .caption(format!("y = {}x + {}", theta1, theta0), ("Arial", 30))
         .margin(10)
         .x_label_area_size(40)
         .y_label_area_size(40)
